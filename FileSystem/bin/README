@@ -1,0 +1,37 @@
+This project requires implementing the FileSystem.java
+interface.  We have provided the class JavaFileSystem.java
+which implements this interface, although all methods
+currently throw a RuntimeException. Your task is to 
+remove the RuntimeException and add the logic to each method.
+
+Your implementation may be tested using the TestFS.java
+class. This class may be invoked by entering the name of one
+of the test scripts in the tests directory. For example, to 
+test the script test1.data, you would enter
+
+java TestFS ./tests/test1.data
+
+Furthermore, you may use just a command line interface
+in TestFS.java to test specific methods. If you were to enter:
+
+	java TestFS
+
+you are presented with the following prompt:
+
+	-->
+
+where you may enter one of the commands that are specified in
+the test scripts. For example, to format the disk, you would enter:
+
+	--> formatDisk 10 2
+
+To create a file, you would enter
+
+	--> file = create
+
+To get the inumber of a file, enter:
+
+	--> inum = inumber file
+
+Scan through the test scripts to see how to enter the command specific
+to each method in the FileSystem interface.

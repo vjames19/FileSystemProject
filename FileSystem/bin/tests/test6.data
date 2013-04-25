@@ -1,0 +1,53 @@
+// test6.data:  Checks the error conditions of filling up the file table and
+// using all of the inodes.  It will first create enough files to fill the
+// file table.  Then it will begin closing files and adding new ones until
+// the number of inodes have been exhausted.
+
+// 1. Format the disk with 100 blocks total, of which 3 are inode blocks
+formatDisk 100 3
+
+// 2. Create 21 files to fill up the file table
+file1 = create
+file2 = create
+file3 = create
+file4 = create
+file5 = create
+file6 = create
+file7 = create
+file8 = create
+file9 = create
+file10 = create
+file11 = create
+file12 = create
+file13 = create
+file14 = create
+file15 = create
+file16 = create
+file17 = create
+file18 = create
+file19 = create
+file20 = create
+file21 = create
+
+// 3. Try to create a 22nd file, should give us an error
+file22 = create
+
+// 4. Now remove 3 files from the file table, and add 3 more
+close file1
+close file3
+close file5
+
+file1 = create
+file3 = create
+file5 = create
+
+// 5. Now all inodes have been used, try to create one more file
+close file10
+
+file10 = create
+
+// 6. Should have an error at this point, if the code has not terminated on
+//    its own, then shutdown and quit the simulation.
+shutdown
+quit
+

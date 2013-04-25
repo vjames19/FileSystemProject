@@ -1,0 +1,26 @@
+// test7pt1.data:  This is the first of a series of two tests that checks for
+// running out of disk blocks.  This one will check what happens when you
+// need a DATA block and there are none left.
+
+// 1. Format the disk with 10 blocks total, of which 4 are inode blocks.
+formatDisk 10 4
+
+// 2. Create two files -- each of which fill up 2 blocks
+file1 = create
+write file1 Bill_the_Cat_ 1024
+file2 = create
+write file2 Opus_the_Penguin_ 1024
+
+// 3. At this point, we should have 1 block left (remember the superblock).
+//    Open a third file and write 1 block to it.
+file3 = create
+write file3 Milo_ 512
+
+// 4. Now we have no blocks left.  Write a final block to the third file.
+write file3 Portnoy_ 512
+
+// 5. We should have an error for running out of disk blocks.  If the program 
+//    did not terminate, then shutdown and quit.
+shutdown
+quit
+

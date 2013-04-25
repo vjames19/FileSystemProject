@@ -1,0 +1,61 @@
+// test10.data:  Checks that file blocks are being correctly returned to the
+// free list.  It is similar to test8, however this time we are going
+// to be checking to see if the blocks used in double and triple indirection
+// are correctly returned.  At the very end of the test, you should get an
+// ERROR as we run out of disk blocks.
+
+// 1. Format the disk with 11 blocks total: (1 superblock, 1 inode block,
+//    and 9 data blocks).
+formatDisk 11 1
+
+// 2. Write 4 triple-indirect blocks.  Write them so that 9 blocks are
+//    needed.  (You can think about how this is done.)  I will choose
+//    blocks 98,441 - 98,444
+file1 = create
+inum1 = inumber file1
+seek file1 50401792 0
+write file1 Aaaaaayyyyy!_ 2048
+
+// 3. All the data blocks should be used now.  Close and clear the file.
+close file1
+delete inum1
+
+// 4. Now write 6 double-indirect blocks.  Write them so that 9 blocks are
+//  	needed.  I will choose blocks 776-781.
+file2=create
+inum2 = inumber file2
+seek file2 397312 0
+write file2 Aaaaaayyyyy!_ 3072
+
+// 5. All the data blocks should be used now.  Close and clear the file.
+close file2
+delete inum2
+
+// 6. Now write 8 single-indirect blocks.  Write them so that 9 blocks 
+//  	are needed.  I will choose blocks 35-43.
+file3 = create
+inum3 = inumber file3
+seek file3 17920 0
+write file3 Aaaaaayyyyy!_ 4096
+
+// 7. All the data blocks should be used now.  Close and clear the file.
+close file3
+delete inum3
+
+// 8. Now write two files, one of 4 blocks and one of 5 blocks.
+file4 = create
+inum4 = inumber file4
+write file4 Aaaaaayyyyy!_ 2048
+
+file5 = create
+inum5 = inumber file5
+write file5 Aaaaaayyyyy!_ 2560
+
+// 9. At this point, all the blocks should be used.  Add one more block to 
+//   	file 4.  You should get an ERROR.
+write file4 Aaaaaayyyyy!_ 512
+
+// 10. If your code has not terminated on its own, shutdown and quit.
+shutdown
+quit
+

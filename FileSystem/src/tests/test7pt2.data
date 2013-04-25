@@ -1,0 +1,26 @@
+// test7pt2.data:  This is the second of a series of two tests that checks for
+// running out of disk blocks.  This one will check what happens when you
+// need an INDIRECT block and there are none left.
+
+// 1. Format the disk with 100 blocks total, of which 10 are inode blocks.
+formatDisk 100 10
+
+// 2. Create two files -- each of which fill up 43 blocks (44 blocks if
+//    the indirect block is included).
+file1 = create
+write file1 Bill_the_Cat_ 22016
+file2 = create
+write file2 Opus_the_Penguin_ 22016
+
+// 3. At this point, we should have 1 block left (remember the superblock).
+//    Open a third file and write 1 block to it (using double indirection).
+//    Choose block position 10000 in the file.
+file3 = create
+seek file3 5120000 0
+write file3 Milo_ 512
+
+// 4. We should have an error for running out of disk blocks.  If the program 
+//    did not terminate, then shutdown and quit.
+shutdown
+quit
+

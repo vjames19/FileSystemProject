@@ -1,0 +1,68 @@
+// test9.data:  Will check miscellaneous error conditions -- such as using
+// an incorrect file descriptor, trying to access a non-existent file,
+// seeking to a negative position, etc.
+
+// 1. Format the disk with 100 blocks total.
+formatDisk 100 10
+
+// 2. Create 3 basic files
+file1 = create
+inum1 = inumber file1
+write file1 Names_ 512
+
+file2 = create
+inum2 = inumber file2
+write file2 Names_ 512
+
+file3 = create
+inum3 = inumber file3
+write file3 Names_ 512
+
+// 3. Delete the second file
+close file2
+delete inum2
+
+// 4. Access the second file with a seek (ERROR)
+seek file2 1000 0
+
+// 5. Write to the second file (ERROR)
+write file2 Checkers_ 1000
+
+// 6. Read from the second file (ERROR)
+read file2 20
+
+// 7. Close the second file and delete it again (ERROR -- though delete 
+//    may just return 0)
+close file2
+delete inum2
+
+// 8. Access a negative file descriptor (ERROR)
+seek -1 1000 10
+
+// 9. Access a free file descriptor (ERROR)
+write 13 Bonzo_ 50
+
+// 10. Access an illegal file descriptor (ERROR)
+write 30 Socks_ 50
+
+// 11. Seek to a negative position (ERROR)
+seek file1 -1000 0
+seek file1 -1000 1
+seek file1 -1000 2
+
+// 12. Open non-existent files (ERROR)
+open 21
+open 0
+open -1
+
+// 13. Close non-existent files (ERROR)
+close 21
+close -1
+
+// 14. Do an illegal format
+format 10 100
+
+// 14. Shutdown the system and quit
+shutdown
+quit
+

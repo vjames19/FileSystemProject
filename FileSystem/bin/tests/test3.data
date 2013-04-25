@@ -1,0 +1,84 @@
+// test3.data:  A general all-around workout.
+// This is similar to test2.data, but with better comments and a few more 
+// tests.
+
+// 1. Format the disk with 100 blocks total, of which 10 are inode blocks
+formatDisk 100 10
+
+// 2. Create file inum1 with 10012 bytes of data.
+file1 = create
+inum1 = inumber file1
+write file1 ItKeepsGoing 12
+// Result should be 12
+write file1 AndGoing 10000
+// Result should be 10000
+
+// 3. In file1, back up 10 bytes and try to read 50.  We should get the last
+// 10 bytes in the file ("ngAndGoing").
+seek file1 -10 1
+// Result should be 1002 (the new offset)
+read file1 50
+// Result should be 10 (only 10 bytes left)
+
+// 4. File inum2 consists of 1000 nulls followed by 500 copies of "Yo"
+// The first block should be a "hole" and the second should have "Yo" in
+// the last last 24 bytes, with the rest filled with nulls.
+file2 = create
+inum2 = inumber file2
+seek file2 1000 0
+// Result should be 1000
+write file2 Yo 1000
+// Result should be 1000
+
+// 5. In file2, seek to 1010 bytes before the end of the file and read 50 bytes
+seek file2 -1010 2
+// Result should be 990 (total length of file is 2000)
+read file2 50
+// Result should be 50 (asked for 50 bytes and got all 50)
+// String printed should be
+// \0\0\0\0\0\0\0\0\0\0YoYoYoYoYoYoYoYoYoYoYoYoYoYoYoYoYoYoYoYo
+
+// 6. Read the first 50 bytes of file2.  This is a hole, so we should get nulls.
+seek file2 0 0
+// Result should be 0
+read file2 50
+// Result should be 50
+
+// 7. Close the first file (inum1, file1)
+inumber file1
+// Result should be 1
+close file1
+// Result should be 0
+
+// 8. Create inum3: 1000 bytes of "Foo", a 10-byte gap, and 1000 bytes of "Bar"
+file3 = create
+write file3 Foo 1000
+seek file3 10 1
+write file3 Bar 1000
+
+// 9. Check that the gap is filled with 10 nulls
+seek file3 990 0
+read file3 30
+// Should print "FooFooFooF\0\0\0\0\0\0\0\0\0\0BarBarBarB"
+
+// 10. Reopen first file (the large "Energizer Bunny" file)
+file1 = open inum1
+// Result should probably be 2, but it depends on how you implemented FileTable
+
+// 11. Read back the first 50 bytes.  They should be
+// ItKeepsGoingAndGoingAndGoingAndGoingAndGoingAndGoi
+read file1 50
+
+// 12. Close file 2 (the YoYo file)
+inumber file2
+close file2
+
+// 13. Delete the file (the YoYo file)
+delete inum2
+
+// 14. Now try to reopen the file we just deleted (should be an error)
+open inum2
+
+// 15. Shut down and quit
+shutdown
+quit

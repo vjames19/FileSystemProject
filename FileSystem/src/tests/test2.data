@@ -1,0 +1,59 @@
+/* This is a basic test file for the file system program.  It tests all
+/*  the basic commands as well as single indirection.
+
+formatDisk 100 10
+
+//CREATE FIRST file, write 10000 bytes
+file1 = create
+inum1 = inumber file1
+write file1 HiThere 10000
+
+//CREATE SECOND file, seek 1000 bytes, write 1000 bytes
+file2 = create
+inum2 = inumber file2
+seek file2 1000 0
+write file2 Yo 1000
+
+//READ 50 bytes from FIRST file at offset 9990
+seek file1 -10 1
+read file1 50
+
+//READ 50 bytes from SECOND file at offset 990
+seek file2 -1010 2
+read file2 50
+
+//CLOSE FIRST file
+inumber file1
+close file1
+
+//CREATE THIRD file, write 1000 bytes, seek 10, write 1000 bytes
+file3 = create
+write file3 Foo 1000
+seek file3 10 1
+write file3 Bar 1000
+
+//READ 30 bytes from THIRD file at offset 990
+seek file3 990 0
+read file3 30
+
+//OPEN FIRST file back into the system
+file1 = open inum1
+
+//READ 50 bytes from front of the FIRST file
+read file1 50
+
+//CLOSE SECOND file
+inumber file2
+close file2
+
+//CLEAR SECOND file with inum = 2
+delete inum2
+
+//OPEN SECOND file (should give an error)
+open inum2
+
+//SHUTDOWN the system
+shutdown
+
+//QUIT the simulation
+quit

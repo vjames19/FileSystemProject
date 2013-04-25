@@ -1,0 +1,163 @@
+// test8.data:  Checks that file blocks are being correctly returned to the
+// free list.  It will create a large number of small files.   Delete
+// alternate files.  And continue to create new, and larger, files until
+// there is one large file.  This test also makes sure that at a 
+// basic level, inodes are being freed up correctly.
+
+// 1. Format the disk with 19 blocks total: (1 superblock, 2 inode blocks,
+//    and 16 data blocks).
+formatDisk 19 2
+
+// 2. Create 16 1-block files to fill up the file table and use all blocks
+file1 = create
+inum1 = inumber file1
+write file1 Mmmm_ 512
+
+file2 = create
+inum2 = inumber file2
+write file2 Mmmm_ 512
+
+file3 = create
+inum3 = inumber file3
+write file3 Mmmm_ 512
+
+file4 = create
+inum4 = inumber file4
+write file4 Mmmm_ 512
+
+file5 = create
+inum5 = inumber file5
+write file5 Mmmm_ 512
+
+file6 = create
+inum6 = inumber file6
+write file6 Mmmm_ 512
+
+file7 = create
+inum7 = inumber file7
+write file7 Mmmm_ 512
+
+file8 = create
+inum8 = inumber file8
+write file8 Mmmm_ 512
+
+file9 = create
+inum9 = inumber file9
+write file9 Mmmm_ 512
+
+file10 = create
+inum10 = inumber file10
+write file10 Mmmm_ 512
+
+file11 = create
+inum11 = inumber file11
+write file11 Mmmm_ 512
+
+file12 = create
+inum12 = inumber file12
+write file12 Mmmm_ 512
+
+file13 = create
+inum13 = inumber file13
+write file13 Mmmm_ 512
+
+file14 = create
+inum14 = inumber file14
+write file14 Mmmm_ 512
+
+file15 = create
+inum15 = inumber file15
+write file15 Mmmm_ 512
+
+file16 = create
+inum16 = inumber file16
+write file16 Mmmm_ 512
+
+// 3. Now remove 8 files from the file table
+close file1
+delete inum1
+close file3
+delete inum3
+close file5
+delete inum5
+close file7
+delete inum7
+close file9
+delete inum9
+close file11
+delete inum11
+close file13
+delete inum13
+close file15
+delete inum15
+
+// 4. Add 4 2-block files
+file1 = create
+inum1 = inumber file1
+write file1 Mmmm_ 1024
+
+file3 = create
+inum3 = inumber file3
+write file3 Mmmm_ 1024
+
+file5 = create
+inum5 = inumber file5
+write file5 Mmmm_ 1024
+
+file7 = create
+inum7 = inumber file7
+write file7 Mmmm_ 1024
+
+// 5. Remove all 8 smaller files 
+close file2
+delete inum2
+close file4
+delete inum4
+close file6
+delete inum6
+close file8
+delete inum8
+close file10
+delete inum10
+close file12
+delete inum12
+close file14
+delete inum14
+close file16
+delete inum16
+
+// 6. Add one 8-block file
+file2 = create
+inum2 = inumber file2
+write file2 Mmmm_ 4096
+
+// 7. Remove all current files
+close file1
+delete inum1
+close file2
+delete inum2
+close file3
+delete inum3
+close file5
+delete inum5
+close file7
+delete inum7
+
+// 8. Add one 15-block file
+file1 = create
+inum1 = inumber file1
+write file1 Mmmm_ 7680
+
+// 9. Delete that file
+close file1
+delete inum1
+
+// 10. Add one more 15-block file
+file2 = create
+inum2 = inumber file2
+write file2 Mmmm_ 7680
+
+// 11. Shutdown the system and quit
+shutdown
+quit
+

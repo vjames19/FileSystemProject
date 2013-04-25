@@ -1,0 +1,71 @@
+// test5pt2.data:  Tests the flushing of data to disk.
+// This is the second part of a two part test.  It will read in the files
+// created in part 1 and make sure that the data was written to disk
+// correctly.  
+
+// 1. Open and check file1.
+file1 = open 1
+
+// Check block 0
+read file1 10
+// Data read should be "Happiness_"
+
+// Check block 1
+seek file1 512 0
+read file1 10
+// Data read should be "ppiness_Ha"
+
+// 2. Open and check file2.
+file2 = open 2
+
+// Check block 20
+seek file2 10491 0
+read file2 10
+// Data read should be "\0\0\0\0\0is_a_"
+
+// Check block 21
+seek file2 11003 0
+read file2 10
+// Data read should be "_a_is" 
+
+// Open and check file 3.
+file3 = open 3
+
+// Block 143
+seek file3 73467 0
+read file3 10
+// Data read should be "\0\0\0\0\0warm_"
+
+// Block 144
+seek file3 73984 0
+read file3 10
+// Data read should be "uppy_warm_"
+
+// Block 146
+seek file3 75003 0
+read file3 10
+// Data read should be "rm_pu\0\0\0\0\0"
+
+// Block 130221
+seek file3 66673403 0
+read file3 10
+// Data read should be "\0\0\0\0\0warm_"
+
+// Block 130222
+seek file3  66673920 0
+read file3 10
+// Data read should be "uppy_warm_"
+
+// Block 130224
+seek file3 66674939 0 
+read file3 10
+// Data read should be "rm_pu"
+
+// 4. Close all files
+close file1
+close file2
+close file3
+
+// 4. Shut down and quit
+shutdown
+quit

@@ -1,0 +1,46 @@
+// test4.data:  Test of indirect blocks
+
+// Format the disk with 100 blocks total, of which 10 are inode blocks
+formatDisk 100 10
+
+// Create a file
+file1 = create
+
+// Write some data to various pages of the file
+
+// Block 9
+seek file1 4608 0
+write file1 A 512
+// Block 10
+seek file1 5120 0
+write file1 B 512
+
+// Block 137
+seek file1 70144 0
+write file1 B 512
+// Block 138
+seek file1 70656 0
+write file1 C 512
+
+// Block 16521
+seek file1 8458752 0
+write file1 C 512
+// Block 16522
+seek file1 8459264 0
+write file1 D 512
+
+// Read back data overlapping block boundaries
+
+// Blocks 9 and 10
+seek file1 5110 0
+read file1 20
+// Blocks 137 and 138
+seek file1 70646 0
+read file1 20
+// Blocks 16521 and 16522
+seek file1 8459254 0
+read file1 20
+
+// Shut down and quit
+shutdown
+quit

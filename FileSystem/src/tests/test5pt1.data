@@ -1,0 +1,52 @@
+// test5pt1.data:  Tests the flushing of data to disk.
+// This is the first part of a two part test.  It will open up numerous
+// files, flush their contents to disk, and then shutdown the system.  The
+// second part of this test will read the files back in.  You should run
+// the second test after running the first (i.e. do not run other tests
+// in-between).
+// IMPORTANT: In order for this test to work correctly, your shutdown() 
+// function must call Disk.stop(false) -- else the disk file will be cleared 
+// in between these tests.  Further, you must be assigning inumbers in order
+// starting with 1.
+
+// 1. Format the disk with 100 blocks total, of which 10 are inode blocks
+formatDisk 100 10
+
+// 2. Create file1: has 2 contiguous blocks from the start
+file1 = create
+inum1 = inumber file1
+// IMPORTANT: result for inumber should be 1
+
+// Blocks 0-1
+write file1 Happiness_ 1024
+
+// 3. Create file2: has 1 singly-indirect block, not block aligned
+file2 = create
+inum2 = inumber file2
+// IMPORTANT: result for inumber should be 2
+
+// Blocks 20-21
+seek file2 10496 0
+write file2 is_a_ 512
+
+// 4. Create file3: has 2 sets of 3 indirect blocks, not block aligned
+file3 = create
+inum3 = inumber file3
+// IMPORTANT: result for inumber should be 3
+
+// Blocks 143-146
+seek file3 73472 0
+write file3 warm_puppy_ 1536
+
+// Blocks 130221-130224
+seek file3 66673408 0
+write file3 warm_puppy_ 1536
+
+// 3. Close all files
+close file1
+close file2
+close file3
+
+// 4. Shut down and quit
+shutdown
+quit

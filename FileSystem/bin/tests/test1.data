@@ -1,0 +1,15 @@
+/* This is a very simple test for the file system program.  It writes some
+/* bytes to a file, closes it, reopens it, and reads what it has written.
+
+formatDisk 10 2
+
+// Create a file and write a string to it
+file1 = create
+inum1 = inumber file1
+write file1 Hello,world! 12
+close file1
+file2 = open inum1
+read file2 100
+close file2
+vars
+/* shutdown
