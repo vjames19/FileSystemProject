@@ -7,7 +7,7 @@
 import java.util.*;
 import java.io.*;
 
-class JavaFileSystem implements FileSystem {
+public class JavaFileSystem implements FileSystem {
     // Set up the constants for the whence field in seek
     public static final int SEEK_SET    = 0;
     public static final int SEEK_CUR    = 1;

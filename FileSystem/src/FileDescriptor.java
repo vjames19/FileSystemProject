@@ -2,7 +2,7 @@
  * Contains data about a file.  The data it contains is:
  * Inode, inumber, current seek pointer.
  */
-class FileDescriptor
+public class FileDescriptor
 {    
     private Inode inode;
     private int inumber;

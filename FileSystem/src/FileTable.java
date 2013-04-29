@@ -16,7 +16,7 @@ import java.io.*;
  *Each FD object is an instance of the class FileDescriptor (below) that maintains
  *information about the specified file.
  */
-class FileTable {
+public class FileTable {
     public static final int MAX_FILES = 21; 
     public int bitmap[];
     public FileDescriptor[] fdArray;

@@ -1,4 +1,4 @@
-class IndirectBlock {
+public class IndirectBlock {
 	public int pointer[] = new int[Disk.BLOCK_SIZE/4];
 
 	public IndirectBlock() {

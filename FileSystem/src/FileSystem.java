@@ -1,7 +1,7 @@
 /**
  * The interface of the file system to be implemented 
  */
-interface FileSystem {
+public interface FileSystem {
 	 /**
      * Initialize the the disk to a state representing an empty file-system.
      * Fill in the super block, mark all inodes as "unused", and link

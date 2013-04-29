@@ -3,7 +3,7 @@
  * TO DO: Add getter/setter methods so to declare the data element as private
  *
  */
-class InodeBlock {
+public class InodeBlock {
 	Inode node[] = new Inode[Disk.BLOCK_SIZE/Inode.SIZE];
 
 	public InodeBlock() {

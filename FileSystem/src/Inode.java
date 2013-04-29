@@ -4,7 +4,7 @@
  * to allow the elements to be declared as private
  *
  */
-class Inode {
+public class Inode {
 	public final static int SIZE = 64;	// size in bytes
 	int flags;
 	int owner;
