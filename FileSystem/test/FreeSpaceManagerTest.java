@@ -49,9 +49,9 @@ public class FreeSpaceManagerTest extends AbstractTest {
 		
 		Collections.reverse(inumbers);
 		for(Integer i: inumbers){
-			Inode inode = translator.getInode(i);
+			Inode inode = translator.getInodeFromDisk(i);
 			manager.freeInode(inode, i);
-			FileDescriptor fd= new FileDescriptor(translator.getInode(i), i);
+			FileDescriptor fd= new FileDescriptor(translator.getInodeFromDisk(i), i);
 			compareInumber(i,fd , false);
 		}
 

@@ -50,10 +50,10 @@ public class TranslatorTest {
 		block.node[2] = inode2;
 		disk.write(1, block);
 
-		assertEquals(inode, translator.getInode(1));
-		assertEquals(inode2, translator.getInode(3));
-		assertEquals(new Inode(), translator.getInode(2));
-		assertEquals(new Inode(), translator.getInode(15));
+		assertEquals(inode, translator.getInodeFromDisk(1));
+		assertEquals(inode2, translator.getInodeFromDisk(3));
+		assertEquals(new Inode(), translator.getInodeFromDisk(2));
+		assertEquals(new Inode(), translator.getInodeFromDisk(15));
 
 	}
 
@@ -73,7 +73,7 @@ public class TranslatorTest {
 		Collections.shuffle(references);
 		for (Integer reference : references) {
 			assertEquals(inodes.get(reference - 1),
-					translator.getInode(reference));
+					translator.getInodeFromDisk(reference));
 		}
 
 	}
@@ -87,12 +87,12 @@ public class TranslatorTest {
 		block.node[3] = inode2;
 		disk.write(1, block);
 
-		assertEquals(block, translator.getInodeBlock(4));
+		assertEquals(block, translator.getInodeBlockFromDisk(4));
 
 		disk.write(2, block);
 
 		assertEquals(block,
-				translator.getInodeBlock(4 + InodeBlock.INODES_IN_BLOCK));
+				translator.getInodeBlockFromDisk(4 + InodeBlock.INODES_IN_BLOCK));
 
 	}
 
@@ -137,9 +137,9 @@ public class TranslatorTest {
 		int inumber = 1;
 		int seekptr = 212;
 		int value = 3;
-		translator.setInodeBlockValue(inode, inumber, seekptr, value);
+		translator.changedDataBlockPointedByTheInode(inode, inumber, seekptr, value);
 		translator.updateInode(inode, 1);
-		assertEquals(inode, translator.getInode(1));
+		assertEquals(inode, translator.getInodeFromDisk(1));
 		
 		//single
 		final int n =IndirectBlock.NUMBER_OF_POINTERS;
@@ -148,9 +148,9 @@ public class TranslatorTest {
 		seekptr = (10 + IndirectBlock.NUMBER_OF_POINTERS -1) * Disk.BLOCK_SIZE;
 		inumber = 15;
 		value = 17;
-		translator.setInodeBlockValue(inode, inumber, seekptr, value);
+		translator.changedDataBlockPointedByTheInode(inode, inumber, seekptr, value);
 		translator.updateInode(inode, inumber);
-		assertEquals(value, translator.getInodeBlockValue(inode, seekptr));
+		assertEquals(value, translator.getDataBlockValuePointedByThisInode(inode, seekptr));
 		
 		//double
 
@@ -176,9 +176,9 @@ public class TranslatorTest {
 		seekptr = (10 + n + n*n -1) * Disk.BLOCK_SIZE;
 		inumber = 15;
 		value = 6;
-		translator.setInodeBlockValue(inode, inumber, seekptr, value);
+		translator.changedDataBlockPointedByTheInode(inode, inumber, seekptr, value);
 		translator.updateInode(inode, inumber);
-		assertEquals(value, translator.getInodeBlockValue(inode, seekptr));
+		assertEquals(value, translator.getDataBlockValuePointedByThisInode(inode, seekptr));
 	}
 	
 	public void testTripleIndirect(){
@@ -200,9 +200,9 @@ public class TranslatorTest {
 		seekptr = (10 + n + n*n + n*n*n -1) * Disk.BLOCK_SIZE;
 		inumber = 15;
 		value = 6;
-		translator.setInodeBlockValue(inode, inumber, seekptr, value);
+		translator.changedDataBlockPointedByTheInode(inode, inumber, seekptr, value);
 		translator.updateInode(inode, inumber);
-		assertEquals(value, translator.getInodeBlockValue(inode, seekptr));
+		assertEquals(value, translator.getDataBlockValuePointedByThisInode(inode, seekptr));
 	}
 	
 
