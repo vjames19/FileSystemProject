@@ -295,14 +295,6 @@ class JavaFileSystem implements FileSystem {
 		return s;
 	}
 
-	private int blockNum(int iNumber) {
-		return 1 + (iNumber / InodeBlock.INODES_IN_BLOCK);
-	}
-
-	private int inodeInBlock(int iNumber) {
-		return (iNumber - 1) % (InodeBlock.INODES_IN_BLOCK);
-	}
-
 	private boolean isValidInumber(int inumber) {
 		return inumber > 0
 				&& inumber <= (superBlock.iSize * InodeBlock.INODES_IN_BLOCK);
