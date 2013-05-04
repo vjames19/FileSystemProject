@@ -1,12 +1,13 @@
-public class IndirectBlock {
-	public int pointer[] = new int[Disk.BLOCK_SIZE/4];
+class IndirectBlock {
+	public static final int NUMBER_OF_POINTERS = Disk.BLOCK_SIZE/4;
+	public int pointer[] = new int[NUMBER_OF_POINTERS];
 
 	public IndirectBlock() {
 		clear();
 	}
 
 	public void clear() {
-		for (int i = 0; i < Disk.BLOCK_SIZE/4; i++) {
+		for (int i = 0; i < NUMBER_OF_POINTERS; i++) {
 			pointer[i] = 0;
 		}
 	}

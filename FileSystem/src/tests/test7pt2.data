@@ -3,7 +3,7 @@
 // need an INDIRECT block and there are none left.
 
 // 1. Format the disk with 100 blocks total, of which 10 are inode blocks.
-formatDisk 100 10
+formatDisk 99 10
 
 // 2. Create two files -- each of which fill up 43 blocks (44 blocks if
 //    the indirect block is included).

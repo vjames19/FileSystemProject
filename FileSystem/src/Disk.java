@@ -1,7 +1,7 @@
 import java.util.*;
 import java.io.*;
 
-public class Disk {
+class Disk {
     // the size in bytes of each disk block
     public final static int BLOCK_SIZE = 512;
     // the number of disk blocks in the system
@@ -23,11 +23,23 @@ public class Disk {
 		try {
 			fileName = new File("DISK");
 			disk = new RandomAccessFile(fileName, "rw");
+			
 		}
 		catch (IOException e) {
 			System.err.println ("Unable to start the disk");
 			System.exit(1);
 		}
+	}
+	
+	public long length(){
+		try {
+			return disk.length();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return 0;
 	}
 
 	private void seek(int blocknum) throws IOException {
@@ -58,16 +70,16 @@ public class Disk {
 	public void read(int blocknum, SuperBlock block) {
 		try {
 			seek(blocknum);
-			block.setSize(disk.readInt());
-			block.setiSize(disk.readInt());
-			block.setFreeList(disk.readInt());
+			block.size = disk.readInt();
+			block.iSize = disk.readInt();
+			block.freeList = disk.readInt();
 		}
 		catch (EOFException e) {
 			if (blocknum != 0) {
 				System.err.println(e);
 				System.exit(1);
 			}
-			block.setSize(block.setiSize(block.setFreeList(0)));
+			block.size = block.iSize = block.freeList = 0;
 		}
 		catch (IOException e) {
 			System.err.println(e);
@@ -81,7 +93,7 @@ public class Disk {
 			seek(blocknum);
 			for (int i=0; i<block.node.length; i++) {
 				block.node[i].flags = disk.readInt();
-				block.node[i].owner = disk.readInt();
+				//block.node[i].owner = disk.readInt();
 				//block.node[i].size = disk.readInt();
 				block.node[i].fileSize = disk.readInt();
 				for (int j=0; j<13; j++)
@@ -129,9 +141,9 @@ public class Disk {
 	public void write(int blocknum, SuperBlock block) {
 		try {
 			seek(blocknum);
-			disk.writeInt(block.getSize());
-			disk.writeInt(block.getiSize());
-			disk.writeInt(block.getFreeList());
+			disk.writeInt(block.size);
+			disk.writeInt(block.iSize);
+			disk.writeInt(block.freeList);
 		}
 		catch (IOException e) {
 			System.err.println(e);
@@ -177,6 +189,15 @@ public class Disk {
 		System.out.println (generateStats());
 		if (removeFile)
 			fileName.delete();
+	}
+	
+	public void format(){
+		try {
+			disk.setLength(0);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println(e.getStackTrace());
+		}
 	}
 
 	public void stop() {

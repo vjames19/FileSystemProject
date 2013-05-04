@@ -14,7 +14,7 @@
 import java.io.*;
 import java.util.*;
 
-public class TestFS 
+class TestFS 
 {
     // File System object to be used for the function calls
     private static FileSystem fs;

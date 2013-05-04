@@ -1,11 +1,14 @@
+import java.util.Arrays;
+
 
 /**
  * TO DO: This class has to add getter/setter methods for the data elements
  * to allow the elements to be declared as private
  *
  */
-public class Inode {
+class Inode {
 	public final static int SIZE = 64;	// size in bytes
+	private final static int N = IndirectBlock.NUMBER_OF_POINTERS;
 	int flags;
 	int owner;
 	int fileSize;
@@ -18,4 +21,56 @@ public class Inode {
 			s += "|" + pointer[i];
 		return s + "]";
 	}
+	
+	public void init(){
+		flags =1;
+		fileSize = 0;
+		clear();
+	}
+	public void clear(){
+		Arrays.fill(pointer, 0);
+	}
+	
+	public void makeEmpty(){
+		flags = 0;
+		fileSize =0;
+		clear();
+	}
+	
+	public boolean isInUse(){
+		return flags == 1;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + fileSize;
+		result = prime * result + flags;
+		result = prime * result + owner;
+		result = prime * result + Arrays.hashCode(pointer);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Inode other = (Inode) obj;
+		if (fileSize != other.fileSize)
+			return false;
+		if (flags != other.flags)
+			return false;
+		if (owner != other.owner)
+			return false;
+		if (!Arrays.equals(pointer, other.pointer))
+			return false;
+		return true;
+	}
+	
+	
 }

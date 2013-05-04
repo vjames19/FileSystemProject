@@ -3,7 +3,7 @@
 // need a DATA block and there are none left.
 
 // 1. Format the disk with 10 blocks total, of which 4 are inode blocks.
-formatDisk 10 4
+formatDisk 9 4
 
 // 2. Create two files -- each of which fill up 2 blocks
 file1 = create
