@@ -112,7 +112,7 @@ class JavaFileSystem implements FileSystem {
 			int fd = fileTable.getFDfromInumber(inumber);
 			if (!fileTable.isValidAndInUseNoPrint(fd)) {// search on disk
 				System.out.println("Searching on disk");
-				Inode inode = translator.getInode(inumber);
+				Inode inode = translator.getInodeFromDisk(inumber);
 				if (inode == null || !inode.isInUse()){
 					System.out.println("Invalid inode");
 					return -1;
@@ -152,7 +152,7 @@ class JavaFileSystem implements FileSystem {
 		int readBytes = 0;
 
 		while (bufferptr < buffer.length && seekptr < inode.fileSize) {
-			physicalBlock = translator.getInodeBlockValue(inode, seekptr);
+			physicalBlock = translator.getDataBlockValuePointedByThisInode(inode, seekptr);
 			if (physicalBlock <= 0){//print a hole
 				Arrays.fill(buffer, (byte)0);
 				fileTable.setSeekPointer(fd, seekptr + buffer.length);
@@ -196,15 +196,14 @@ class JavaFileSystem implements FileSystem {
 		int bufferptr = 0;
 
 		while (bufferptr < buffer.length) {
-			int physical = translator.getInodeBlockValue(inode, seekptr);
-
+			int physical = translator.getDataBlockValuePointedByThisInode(inode, seekptr);
 			if (physical <= 0) {
 				int allocated = manager.allocateBlock();
 				if (allocated <= 0) {
 					System.out.println("no free block to write");
 					return -1;
 				}
-				translator.setInodeBlockValue(inode,inumber, seekptr, allocated);
+				translator.changedDataBlockPointedByTheInode(inode,inumber, seekptr, allocated);
 				physical = allocated;
 			}
 
@@ -283,7 +282,7 @@ class JavaFileSystem implements FileSystem {
 			close(fd);
 		}
 
-		Inode inode = translator.getInode(inumber);
+		Inode inode = translator.getInodeFromDisk(inumber);
 		manager.freeInode(inode, inumber);
 		return 0;
 
