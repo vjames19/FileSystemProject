@@ -1,5 +1,3 @@
-import java.util.*;
-import java.io.*;
 
 // This class keeps track of all files currently open.
 // In a real Unix system, this information is split into three levels:
@@ -85,7 +83,7 @@ class FileTable {
 		}
 	}
 	
-	public boolean isValid(int fd){
+	public boolean isInRange(int fd){
 		return fd >= 0 && fd < MAX_FILES;
 	}
 	

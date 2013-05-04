@@ -8,7 +8,6 @@ import java.util.Arrays;
  */
 class Inode {
 	public final static int SIZE = 64;	// size in bytes
-	private final static int N = IndirectBlock.NUMBER_OF_POINTERS;
 	int flags;
 	int owner;
 	int fileSize;

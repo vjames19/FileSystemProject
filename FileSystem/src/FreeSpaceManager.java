@@ -105,10 +105,4 @@ public class FreeSpaceManager {
 		return null;
 	}
 
-	private void checkForNull(int i) {
-		if (i == 0) {
-			throw new IllegalArgumentException("Null pointer");
-		}
-	}
-
 }
