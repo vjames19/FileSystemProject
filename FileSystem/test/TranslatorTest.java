@@ -13,6 +13,7 @@ public class TranslatorTest {
 	private Translator translator;
 	private Disk disk;
 	private SuperBlock superBlock;
+	private FreeSpaceManager manager;
 	private Random r = new Random();
 	final int n =IndirectBlock.NUMBER_OF_POINTERS;
 
@@ -22,8 +23,8 @@ public class TranslatorTest {
 		disk = new Disk();
 		disk.format();
 		writeStructures(2, 10);
-
-		translator = new Translator(disk);
+		manager = new FreeSpaceManager(disk, superBlock);
+		translator = new Translator(disk, manager);
 	}
 
 	@Test
@@ -58,7 +59,7 @@ public class TranslatorTest {
 	}
 
 	@Test
-	public void testUpdateInode() {
+	public void testWriteInode() {
 
 		final int len = superBlock.iSize * InodeBlock.INODES_IN_BLOCK;
 		List<Inode> inodes = new ArrayList<Inode>(len);
@@ -66,7 +67,7 @@ public class TranslatorTest {
 		for (int i = 1; i <= len; i++) {
 			Inode inode = getRandomInode();
 			inodes.add(inode);
-			translator.updateInode(inode, i);
+			translator.writeInode(inode, i);
 			references.add(i);
 		}
 
@@ -138,7 +139,7 @@ public class TranslatorTest {
 		int seekptr = 212;
 		int value = 3;
 		translator.changedDataBlockPointedByTheInode(inode, inumber, seekptr, value);
-		translator.updateInode(inode, 1);
+		translator.writeInode(inode, 1);
 		assertEquals(inode, translator.getInodeFromDisk(1));
 		
 		//single
@@ -149,7 +150,7 @@ public class TranslatorTest {
 		inumber = 15;
 		value = 17;
 		translator.changedDataBlockPointedByTheInode(inode, inumber, seekptr, value);
-		translator.updateInode(inode, inumber);
+		translator.writeInode(inode, inumber);
 		assertEquals(value, translator.getDataBlockValuePointedByThisInode(inode, seekptr));
 		
 		//double
@@ -177,7 +178,7 @@ public class TranslatorTest {
 		inumber = 15;
 		value = 6;
 		translator.changedDataBlockPointedByTheInode(inode, inumber, seekptr, value);
-		translator.updateInode(inode, inumber);
+		translator.writeInode(inode, inumber);
 		assertEquals(value, translator.getDataBlockValuePointedByThisInode(inode, seekptr));
 	}
 	
@@ -201,7 +202,7 @@ public class TranslatorTest {
 		inumber = 15;
 		value = 6;
 		translator.changedDataBlockPointedByTheInode(inode, inumber, seekptr, value);
-		translator.updateInode(inode, inumber);
+		translator.writeInode(inode, inumber);
 		assertEquals(value, translator.getDataBlockValuePointedByThisInode(inode, seekptr));
 	}
 	

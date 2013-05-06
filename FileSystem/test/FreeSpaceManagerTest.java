@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,7 +23,7 @@ public class FreeSpaceManagerTest extends AbstractTest {
 		size = 4;
 		super.setup();
 		superBlock.freeList = isize +1;
-		manager = new FreeSpaceManager(disk, superBlock, translator);
+		manager = new FreeSpaceManager(disk, superBlock);
 		manager.updateFreeBlock();
 	}
 	@Test
@@ -31,29 +32,39 @@ public class FreeSpaceManagerTest extends AbstractTest {
 			System.out.println(i);
 			assertEquals(i, manager.allocateBlock());
 		}
-		assertEquals(-1,manager.allocateBlock());
+		assertEquals(0,manager.allocateBlock());
+		assertEquals(0,manager.allocateBlock());
+		assertEquals(0,manager.allocateBlock());
+
 
 	}
 
 	@Test
 	public void testFreeInode() {
-		int len = isize * InodeBlock.INODES_IN_BLOCK;
-		List<FileDescriptor> fds = new ArrayList<FileDescriptor>(len);
-		List<Integer> inumbers = new ArrayList<Integer>(len);
-		for(int i=0; i < len; i++){
-			FileDescriptor fd = manager.getFreeInode();
-			fds.add(fd);
-			inumbers.add(i+1);
-			compareInumber(i+1, fd,true);
+		assertEquals(0, manager.getAllocated());
+		Inode inode = new Inode();
+		int len = Math.min(inode.pointer.length, size - isize);
+		for(int i=0; i <len; i++){
+			inode.pointer[i] = manager.allocateBlock();
+			assertTrue(inode.pointer[i] >0);
 		}
 		
-		Collections.reverse(inumbers);
-		for(Integer i: inumbers){
-			Inode inode = translator.getInodeFromDisk(i);
-			manager.freeInode(inode, i);
-			FileDescriptor fd= new FileDescriptor(translator.getInodeFromDisk(i), i);
-			compareInumber(i,fd , false);
+		assertEquals(len, manager.getAllocated());
+		
+		manager.freeInode(inode);
+		assertEquals(false, inode.isInUse());
+		assertEquals(0, manager.getAllocated());
+		
+		int ptr = superBlock.freeList;
+		int count =0;
+		while(ptr > 0){
+			IndirectBlock iBlock = new IndirectBlock();
+			disk.read(ptr, iBlock);
+			ptr = iBlock.pointer[0];
+			count++;
 		}
+		
+		assertEquals(size -isize, count);
 
 	}
 
@@ -71,6 +82,11 @@ public class FreeSpaceManagerTest extends AbstractTest {
 		assertEquals(i, fd.getInumber());
 		assertTrue(fd.getInode() != null);
 		assertEquals(inUse, fd.getInode().isInUse());
+	}
+	
+	@After
+	public void after(){
+		System.out.println("next test:");
 	}
 
 }

@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 public class AbstractTest {
 
-	protected Translator translator;
 	protected Disk disk;
 	protected SuperBlock superBlock;
 	protected Random r = new Random();
@@ -22,9 +21,7 @@ public class AbstractTest {
 	public void setup() {
 		superBlock = new SuperBlock();
 		disk = new Disk();
-		
 		writeStructures(isize, size);
-		translator = new Translator(disk);
 	}
 
 	protected Inode getRandomInode() {
@@ -61,6 +58,7 @@ public class AbstractTest {
 			disk.write(i, idBlock);
 		}
 	}
+
 	
 
 }
