@@ -42,10 +42,10 @@ write file3 Aaaaaayyyyy!_ 4096
 close file3
 delete inum3
 
-// 8. Now write two files, one of 4 blocks and one of 5 blocks.
+// 8. Now write two files of 5 blocks.
 file4 = create
 inum4 = inumber file4
-write file4 Aaaaaayyyyy!_ 2048
+write file4 Aaaaaayyyyy!_ 2560
 
 file5 = create
 inum5 = inumber file5
