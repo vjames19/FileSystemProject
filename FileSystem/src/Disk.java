@@ -22,6 +22,10 @@ class Disk {
 
 	// read in the file representing the simulated disk
 	public Disk() {
+		init();
+	}
+
+	private void init() {
 		try {
 			fileName = new File("DISK");
 			disk = new RandomAccessFile(fileName, "rw");
@@ -197,7 +201,7 @@ class Disk {
 		try {
 			disk.setLength(0);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Could not format file");
 			System.out.println(e.getStackTrace());
 		}
 	}

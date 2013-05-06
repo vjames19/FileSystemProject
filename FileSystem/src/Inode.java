@@ -2,7 +2,7 @@ import java.util.Arrays;
 
 
 /**
- * TO DO: This class has to add getter/setter methods for the data elements
+ * TODO: This class has to add getter/setter methods for the data elements
  * to allow the elements to be declared as private
  *
  */

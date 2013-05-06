@@ -3,16 +3,16 @@ public class FreeSpaceManager {
 	private Disk disk;
 	private IndirectBlock freeBlock;
 	private static final int NEXT_BLOCK = 0;
-	private Translator translator;
+	private int allocated;
 
-	public FreeSpaceManager(Disk disk, SuperBlock block, Translator translator) {
+	public FreeSpaceManager(Disk disk, SuperBlock block) {
 		// if (block.freeList == 0) {
 		// throw new IllegalArgumentException(
 		// "Invalid free block pointing to superblock");
 		// }
 		this.disk = disk;
 		this.superBlock = block;
-		this.translator = translator;
+
 
 		// updateFreeBlock();
 	}
@@ -26,7 +26,7 @@ public class FreeSpaceManager {
 		if (superBlock.freeList <= 0) {
 			System.out
 					.println("FreeSpaceManager.allocateBlock() no more free blocks");
-			return -1;
+			return 0;
 		}
 
 		int current = superBlock.freeList;
@@ -35,10 +35,12 @@ public class FreeSpaceManager {
 			disk.read(next, freeBlock);
 		}
 		superBlock.freeList = next;
+		
+		System.out.println("allocated " + ++allocated);
 		return current;
 	}
 
-	public void freeInode(Inode inode, int inumber) {
+	public void freeInode(Inode inode) {
 		for (int i = 0; i < 10; i++) {
 			freeBlock(inode.pointer[i]);
 		}
@@ -46,12 +48,10 @@ public class FreeSpaceManager {
 		for (int i = 10, j = 0; i < inode.pointer.length; i++, j++) {
 			if (inode.pointer[i] > 0) {
 				freeInodeHelper(getIndirectBlock(inode.pointer[i]), j);
+				freeBlock(inode.pointer[i]);
 			}
 		}
-
 		inode.makeEmpty();
-		translator.updateInode(inode, inumber);
-
 	}
 
 	private IndirectBlock getIndirectBlock(int blockNumber) {
@@ -71,18 +71,21 @@ public class FreeSpaceManager {
 				if (i > 0) {
 					disk.read(i, iblock);
 					freeInodeHelper(iblock, level - 1);
+					freeBlock(i);
 
 				}
 			}
 		}
 	}
 
-	private void freeBlock(int i) {
-		if (i > 0) {
+	public void freeBlock(int block) {
+		if (block > 0) {
 			freeBlock.clear();
 			freeBlock.pointer[NEXT_BLOCK] = superBlock.freeList;
-			superBlock.freeList = i;
-			disk.write(i, freeBlock);
+			superBlock.freeList = block;
+			disk.write(block, freeBlock);
+			
+			System.out.println("allocated " + --allocated);
 		}
 	}
 
@@ -104,5 +107,10 @@ public class FreeSpaceManager {
 
 		return null;
 	}
+
+	public int getAllocated() {
+		return allocated;
+	}
+
 
 }

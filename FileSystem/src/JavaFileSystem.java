@@ -23,10 +23,10 @@ class JavaFileSystem implements FileSystem {
 		this.disk = new Disk();
 		this.fileTable = new FileTable();
 		this.superBlock = new SuperBlock();
-		translator = new Translator(disk);
+		manager = new FreeSpaceManager(disk, superBlock);
+		translator = new Translator(disk, manager);
 		disk.read(0, superBlock);
-		manager = new FreeSpaceManager(disk, superBlock, translator);
-		if(disk.length() > 0){
+		if (disk.length() > 0) {
 			manager.updateFreeBlock();
 		}
 
@@ -36,7 +36,7 @@ class JavaFileSystem implements FileSystem {
 	// Fill in the super block, mark all inodes as "unused", and link
 	// all data blocks into the free list.
 	public int formatDisk(final int size, final int iSize) {
-		if (iSize > size - 1)
+		if (iSize >= size)
 			return -1;
 		disk.format();
 		this.superBlock = new SuperBlock();
@@ -70,13 +70,13 @@ class JavaFileSystem implements FileSystem {
 	public int shutdown() {
 
 		for (int i = 0; i < fileTable.fdArray.length; i++) {
-			if (fileTable.isValidAndInUse(i)) {
+			if (fileTable.isValidAndInUseNoPrint(i)) {
 				close(i);
 			}
 
 		}
 		disk.write(0, superBlock);
-		disk.stop(false);
+		disk.stop(true);
 		return 0;
 	} // shutdown
 
@@ -85,7 +85,7 @@ class JavaFileSystem implements FileSystem {
 		if (fileTable.notFull()) {
 			FileDescriptor fDesc = manager.getFreeInode();
 			if (fDesc != null) {
-				int fd =fileTable.allocate();
+				int fd = fileTable.allocate();
 				fileTable.add(fd, fDesc);
 				return fd;
 			} else {
@@ -113,12 +113,12 @@ class JavaFileSystem implements FileSystem {
 			if (!fileTable.isValidAndInUseNoPrint(fd)) {// search on disk
 				System.out.println("Searching on disk");
 				Inode inode = translator.getInodeFromDisk(inumber);
-				if (inode == null || !inode.isInUse()){
+				if (inode == null || !inode.isInUse()) {
 					System.out.println("Invalid inode");
 					return -1;
 				}
 				fd = fileTable.allocate();
-				if (fd >= 0) {
+				if (fileTable.isInRange(fd)) {
 					fileTable.add(inode, inumber, fd);
 					return fd;
 				}
@@ -152,8 +152,9 @@ class JavaFileSystem implements FileSystem {
 		int readBytes = 0;
 
 		while (bufferptr < buffer.length && seekptr < inode.fileSize) {
-			physicalBlock = translator.getDataBlockValuePointedByThisInode(inode, seekptr);
-			if (physicalBlock <= 0){//print a hole
+			physicalBlock = translator.getDataBlockValuePointedByThisInode(
+					inode, seekptr);
+			if (physicalBlock <= 0) {// print a hole
 				Arrays.fill(buffer, (byte)0);
 				fileTable.setSeekPointer(fd, seekptr + buffer.length);
 				return buffer.length;
@@ -172,9 +173,9 @@ class JavaFileSystem implements FileSystem {
 			// update counters
 			seekptr += bytesRead;
 			readBytes += bytesRead;
-			
+
 		}
-		
+
 		fileTable.setSeekPointer(fd, seekptr);
 
 		return readBytes;
@@ -196,15 +197,11 @@ class JavaFileSystem implements FileSystem {
 		int bufferptr = 0;
 
 		while (bufferptr < buffer.length) {
-			int physical = translator.getDataBlockValuePointedByThisInode(inode, seekptr);
+			int physical = translator.getDataBlockOrFillHole(inode, inumber,
+					seekptr);
 			if (physical <= 0) {
-				int allocated = manager.allocateBlock();
-				if (allocated <= 0) {
-					System.out.println("no free block to write");
-					return -1;
-				}
-				translator.changedDataBlockPointedByTheInode(inode,inumber, seekptr, allocated);
-				physical = allocated;
+				System.out.println("no free block to write");
+				return -1;
 			}
 
 			int offset = seekptr % Disk.BLOCK_SIZE;
@@ -222,10 +219,9 @@ class JavaFileSystem implements FileSystem {
 			seekptr += writeNum;
 
 			inode.fileSize = seekptr;
-			
+			fileTable.setSeekPointer(fd, seekptr);
+
 		}
-		
-		fileTable.setSeekPointer(fd, seekptr);
 
 		return writtenBytes;
 
@@ -266,8 +262,8 @@ class JavaFileSystem implements FileSystem {
 		if (!fileTable.isValidAndInUse(fd))
 			return -1;
 		Inode inode = fileTable.getInode(fd);
-		int inumber = fileTable.getInumber(fd);		
-		translator.updateInode(inode, inumber);
+		int inumber = fileTable.getInumber(fd);
+		translator.writeInode(inode, inumber);
 		fileTable.free(fd);
 		return 0;
 	} // close
@@ -282,8 +278,7 @@ class JavaFileSystem implements FileSystem {
 			close(fd);
 		}
 
-		Inode inode = translator.getInodeFromDisk(inumber);
-		manager.freeInode(inode, inumber);
+		translator.freeInode(inumber);
 		return 0;
 
 	} // delete
