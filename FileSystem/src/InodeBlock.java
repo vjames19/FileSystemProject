@@ -2,10 +2,25 @@ import java.util.Arrays;
 
 
 /**
- * TO DO: Add getter/setter methods so to declare the data element as private
+ * TODO: Add getter/setter methods so to declare the data element as private
  *
  */
 class InodeBlock {
+	public static final int INODES_IN_BLOCK = Disk.BLOCK_SIZE/Inode.SIZE;
+	Inode node[] = new Inode[INODES_IN_BLOCK];
+
+	public InodeBlock() {
+		for (int i = 0; i < INODES_IN_BLOCK; i++)
+			node[i] = new Inode();
+	}
+
+	public String toString() {
+		String s = "INODEBLOCK:\n";
+		for (int i = 0; i < node.length; i++)
+			s += node[i] + "\n";
+		return s;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -26,21 +41,6 @@ class InodeBlock {
 		if (!Arrays.equals(node, other.node))
 			return false;
 		return true;
-	}
-
-	public static final int INODES_IN_BLOCK = Disk.BLOCK_SIZE/Inode.SIZE;
-	Inode node[] = new Inode[INODES_IN_BLOCK];
-
-	public InodeBlock() {
-		for (int i = 0; i < INODES_IN_BLOCK; i++)
-			node[i] = new Inode();
-	}
-
-	public String toString() {
-		String s = "INODEBLOCK:\n";
-		for (int i = 0; i < node.length; i++)
-			s += node[i] + "\n";
-		return s;
 	}
 }
 

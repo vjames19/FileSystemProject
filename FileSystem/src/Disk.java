@@ -37,6 +37,10 @@ class Disk {
 		}
 	}
 	
+	/**
+	 * Length of the disk
+	 * @return length of the disk
+	 */
 	public long length(){
 		try {
 			return disk.length();
@@ -48,6 +52,11 @@ class Disk {
 		return 0;
 	}
 
+	/**
+	 * Moves to a specific block
+	 * @param blocknum
+	 * @throws IOException if  blocknum is less than 0 or an I/O error occurs
+	 */
 	private void seek(int blocknum) throws IOException {
 		if (blocknum < 0 || blocknum >= NUM_BLOCKS) 
 			throw new RuntimeException ("Attempt to read block " +
@@ -73,6 +82,11 @@ class Disk {
 		readCount++;
 	} 
 
+	/**
+	 * Reads a SuperBlock from the specified blocknum
+	 * @param blocknum
+	 * @param block
+	 */
 	public void read(int blocknum, SuperBlock block) {
 		try {
 			seek(blocknum);
@@ -191,7 +205,6 @@ class Disk {
 	} 
 		
 	public void stop(boolean removeFile) {
-		//System.out.println (toString());
 		System.out.println (generateStats());
 		if (removeFile)
 			fileName.delete();

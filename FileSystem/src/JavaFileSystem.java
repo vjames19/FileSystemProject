@@ -76,7 +76,7 @@ class JavaFileSystem implements FileSystem {
 
 		}
 		disk.write(0, superBlock);
-		disk.stop(true);
+		disk.stop(false);
 		return 0;
 	} // shutdown
 
@@ -118,9 +118,11 @@ class JavaFileSystem implements FileSystem {
 					return -1;
 				}
 				fd = fileTable.allocate();
-				if (fileTable.isInRange(fd)) {
+				if (fileTable.isInRange(fd)) {// valid fd
 					fileTable.add(inode, inumber, fd);
 					return fd;
+				} else {
+					return -1;
 				}
 			}
 			return fd;
@@ -155,18 +157,19 @@ class JavaFileSystem implements FileSystem {
 			physicalBlock = translator.getDataBlockValuePointedByThisInode(
 					inode, seekptr);
 			if (physicalBlock <= 0) {// print a hole
-				Arrays.fill(buffer, (byte)0);
-				fileTable.setSeekPointer(fd, seekptr + buffer.length);
+				Arrays.fill(buffer, (byte) 0);
+				fileTable.setSeekPointer(fd, seekptr
+						+ (buffer.length - bufferptr));
 				return buffer.length;
 			}
 			disk.read(physicalBlock, temp_buffer);
 
-			int offset = seekptr % Disk.BLOCK_SIZE;
+			int offset = seekptr % Disk.BLOCK_SIZE;// offset to read from
 			int bytesRead = Math.min(abs(Disk.BLOCK_SIZE - offset),
 					abs(inode.fileSize - seekptr));
 			bytesRead = Math.min(bytesRead, buffer.length - bufferptr);
 
-			for (int i = 0; i < bytesRead; i++) {
+			for (int i = 0; i < bytesRead; i++) {// read
 				buffer[bufferptr] = temp_buffer[offset++];
 				bufferptr++;
 			}
@@ -187,12 +190,12 @@ class JavaFileSystem implements FileSystem {
 		if (!fileTable.isValidAndInUse(fd)) {
 			return -1;
 		}
-		// TODO 8 TEST 3
+
 		int seekptr = fileTable.getSeekPointer(fd);
-		byte[] temp = new byte[Disk.BLOCK_SIZE];
 		Inode inode = fileTable.getInode(fd);
 		int inumber = fileTable.getInumber(fd);
 
+		byte[] temp = new byte[Disk.BLOCK_SIZE];
 		int writtenBytes = 0;
 		int bufferptr = 0;
 
@@ -204,7 +207,8 @@ class JavaFileSystem implements FileSystem {
 				return -1;
 			}
 
-			int offset = seekptr % Disk.BLOCK_SIZE;
+			int offset = seekptr % Disk.BLOCK_SIZE;// offset to write to in
+													// block
 
 			disk.read(physical, temp);
 			int writeNum = Math.min(abs(Disk.BLOCK_SIZE - offset),
